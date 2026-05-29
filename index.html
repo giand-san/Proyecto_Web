@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MAMBAQ — Transforma dibujos infantiles en obras de arte con Inteligencia Artificial">
+  <title>MAMBAQ — Arte con IA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="CSS/style.css">
+</head>
+<body>
+
+  <!-- PANTALLA: HOME -->
+  <main id="home" class="screen active">
+    <header class="top-bar">
+      <div class="logo">MAM<span>BAQ</span></div>
+      <div style="font-size:11px;opacity:0.6;letter-spacing:0.08em">BARRANQUILLA</div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-badge">Arte con Inteligencia Artificial</div>
+      <h1>Tu dibujo, <em>obra maestra</em></h1>
+      <p>Transforma los dibujos de los niños en arte con estilos de los grandes maestros</p>
+    </section>
+
+    <div class="main-cta">
+      <button class="btn-primary" onclick="goTo('scan')">
+        <div class="icon-box">📷</div>
+        <div class="btn-text">
+          Crear obra de arte
+          <small>Escanea un dibujo y aplica estilo artístico</small>
+        </div>
+      </button>
+      <button class="btn-secondary" onclick="goTo('gallery')">
+        <div class="icon-box2">🖼</div>
+        Museo interactivo — galería
+      </button>
+    </div>
+
+    <!-- ── ¿Cómo funciona la IA? — Clasificador Teachable Machine ── -->
+    <h2 class="section-title">¿Cómo funciona la IA?</h2>
+
+    <div style="margin:0 20px 16px;">
+      <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px;">
+        Prueba nuestro clasificador entrenado con dibujos infantiles. Sube una imagen y la IA identifica qué tipo de dibujo es en tiempo real.
+      </p>
+
+      <!-- Zona de carga para el clasificador -->
+      <div style="background:var(--dark);border-radius:16px;overflow:hidden;border:1px solid rgba(201,168,76,0.2);">
+
+        <!-- Header -->
+        <div style="padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(201,168,76,0.1);">
+          <span style="font-size:18px;">🧠</span>
+          <div>
+            <div style="font-size:12px;font-weight:500;color:var(--gold);">Clasificador de Dibujos</div>
+            <div style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;">Teachable Machine · Google</div>
+          </div>
+          <div id="tmStatus" style="margin-left:auto;font-size:9px;padding:3px 8px;border-radius:20px;background:rgba(201,168,76,0.15);color:var(--gold);">Cargando modelo...</div>
+        </div>
+
+        <!-- Área de imagen -->
+        <div style="padding:16px;">
+          <div id="tmDropZone"
+               style="border:2px dashed rgba(201,168,76,0.35);border-radius:12px;min-height:160px;
+                      display:flex;flex-direction:column;align-items:center;justify-content:center;
+                      gap:8px;cursor:pointer;transition:border-color 0.2s;position:relative;overflow:hidden;"
+               onclick="document.getElementById('tmFileInput').click()">
+            <div id="tmPlaceholder" style="text-align:center;padding:20px;">
+              <div style="font-size:36px;margin-bottom:8px;">🖼</div>
+              <div style="font-size:13px;color:rgba(255,255,255,0.6);">Toca para subir un dibujo</div>
+              <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;">JPG · PNG</div>
+            </div>
+            <img id="tmPreviewImg"
+                 style="display:none;width:100%;height:200px;object-fit:cover;border-radius:10px;"
+                 alt="Vista previa">
+          </div>
+          <input type="file" id="tmFileInput" accept="image/*" style="display:none" onchange="tmHandleFile(event)">
+
+          <!-- Botón clasificar -->
+          <button id="tmBtn"
+                  onclick="tmClassify()"
+                  disabled
+                  style="width:100%;margin-top:12px;padding:12px;background:var(--gold);color:var(--dark);
+                         border:none;border-radius:10px;font-size:13px;font-weight:600;
+                         font-family:'DM Sans',sans-serif;cursor:pointer;
+                         opacity:0.4;transition:opacity 0.2s,transform 0.15s;letter-spacing:0.03em;">
+            ✦ Clasificar dibujo
+          </button>
+        </div>
+
+        <!-- Resultados -->
+        <div id="tmResults" style="display:none;padding:0 16px 16px;">
+          <div style="border-top:1px solid rgba(201,168,76,0.1);padding-top:14px;">
+            <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.35);margin-bottom:10px;">Resultado del clasificador</div>
+            <div id="tmResultList"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Banner Teachable Machine -->
+      <div style="margin-top:10px;padding:10px 14px;background:rgba(0,0,0,0.06);border-radius:10px;
+                  display:flex;align-items:center;gap:10px;">
+        <span style="font-size:16px;">🔬</span>
+        <p style="font-size:11px;color:var(--muted);line-height:1.5;">
+          Modelo entrenado con <strong>Teachable Machine</strong> de Google. Reconoce categorías de dibujos infantiles en el navegador, sin enviar datos al servidor.
+        </p>
+      </div>
+    </div>
+
+    <div class="spacer-nav"></div>
+  </main>
+
+
+  <!-- PANTALLA: SCAN + FORMULARIO -->
+  <section id="scan" class="screen">
+    <header class="top-bar">
+      <button class="back-btn" onclick="goTo('home')" aria-label="Volver al inicio">←</button>
+      <div class="logo">Nueva <span>Obra</span></div>
+      <div></div>
+    </header>
+
+    <h2 class="section-title" style="padding-top:18px;">1. Escanear dibujo</h2>
+    <div class="scan-area" onclick="document.getElementById('fileInput').click()" role="button" aria-label="Seleccionar imagen del dibujo">
+      <div class="scan-icon">📷</div>
+      <p>Toca para tomar foto<br>o cargar imagen</p>
+      <small>JPG, PNG — dibujo del niño</small>
+      <img class="scan-preview" id="scanPreview" alt="Vista previa del dibujo cargado">
+    </div>
+    <input type="file" id="fileInput" accept="image/*" onchange="handleFile(event)" aria-label="Cargar imagen">
+
+    <!-- ── Panel de mejora de imagen (visible tras cargar) ── -->
+    <div class="enhance-panel" id="enhancePanel">
+      <div class="enhance-panel-header">
+        <span class="ep-icon">✨</span>
+        <span class="ep-title">Mejorar imagen</span>
+        <span class="ep-badge" id="enhanceBadge"></span>
+      </div>
+      <div class="enhance-steps">
+        <span class="enhance-step-pill">Contraste</span>
+        <span class="enhance-step-pill">Saturación</span>
+        <span class="enhance-step-pill">Nitidez</span>
+        <span class="enhance-step-pill">Brillo</span>
+      </div>
+      <button class="enhance-btn" id="enhanceBtn" onclick="enhanceImage()">
+        ✦ Mejorar imagen
+      </button>
+    </div>
+
+    <h2 class="section-title">2. Información de la obra</h2>
+    <div class="form-group">
+      <label for="obraName">Nombre de la obra</label>
+      <input type="text" id="obraName" placeholder="Ej. Mi jardín de colores">
+    </div>
+    <div class="form-group">
+      <label for="autorName">Autor (nombre del niño)</label>
+      <input type="text" id="autorName" placeholder="Nombre del artista">
+    </div>
+    <div class="form-group">
+      <label for="edadNino">Edad</label>
+      <input type="text" id="edadNino" placeholder="Ej. 8 años">
+    </div>
+
+    
+
+    <button class="process-btn" id="processBtn" onclick="saveToGallery()">✦ Guardar en galería</button>
+    <div class="spacer-nav"></div>
+  </section>
+
+
+  <!-- PANTALLA: GALERÍA -->
+  <section id="gallery" class="screen">
+    <header class="top-bar">
+      <button class="back-btn" onclick="goTo('home')" aria-label="Volver al inicio">←</button>
+      <div class="logo">Museo <span>Interactivo</span></div>
+      <div></div>
+    </header>
+    <h2 class="section-title" style="padding-top:18px;">Obras en exposición</h2>
+    <div class="gallery-grid" id="galleryGrid" role="list"></div>
+    <div class="spacer-nav"></div>
+  </section>
+
+
+  <!-- PANTALLA: SOBRE MAMBAQ -->
+  <section id="about" class="screen">
+    <header class="top-bar">
+      <div></div>
+      <div class="logo">Sobre <span>MAMBAQ</span></div>
+      <div></div>
+    </header>
+
+    <div style="background:var(--dark);padding:24px 20px 20px;text-align:center;">
+      <div style="font-size:42px;margin-bottom:10px;" aria-hidden="true">🏛</div>
+      <p style="font-family:'Playfair Display',serif;font-size:20px;color:var(--gold);">Álvaro Cepeda Samudio</p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px;">Museo de Arte Moderno · Barranquilla</p>
+    </div>
+
+    <div class="about-cards">
+      <article class="about-card">
+        <div class="about-card-header">
+          <div class="about-icon" aria-hidden="true">🏛</div>
+          <div class="about-header-text">
+            <h3>El Museo</h3>
+            <p>Sobre el Museo de Arte Moderno de Barranquilla</p>
+          </div>
+        </div>
+        <div class="about-body">
+          El Museo de Arte Moderno de Barranquilla (MAMBAQ) — Álvaro Cepeda Samudio es una institución cultural dedicada a la preservación y difusión del arte moderno y contemporáneo en el Caribe colombiano. Promueve el diálogo entre el arte, la cultura y la educación.
+        </div>
+      </article>
+
+      <article class="about-card">
+        <div class="about-card-header">
+          <div class="about-icon" aria-hidden="true"></div>
+          <div class="about-header-text">
+            <h3>El Programa</h3>
+            <p>Arte + IA · UNISIMON</p>
+          </div>
+        </div>
+        <div class="about-body">
+          Esta aplicación nace de un programa interdisciplinario de la Universidad Simón Bolívar<br><br>
+          <strong>• Hecho por:</strong>  <br>Jhosua Esteban Rubio Yasno <br>
+          <br> Sharon Nicoll Gasca Yepes <br>
+          <br> Gian David Sanchez de la ossa <br>
+        </div>
+      </article>
+
+      <article class="about-card">
+        <div class="about-card-header">
+          <div class="about-icon" aria-hidden="true"></div>
+          <div class="about-header-text">
+            <h3>El Artista</h3>
+            <p>Álvaro Cepeda Samudio</p>
+          </div>
+        </div>
+        <div class="about-body">
+          Álvaro Cepeda Samudio (1926–1972) fue uno de los grandes escritores y artistas del Caribe colombiano, parte del legendario Grupo de Barranquilla junto a Gabriel García Márquez. Su legado cultural e intelectual inspira esta iniciativa que une arte, niñez e innovación tecnológica.
+        </div>
+      </article>
+    </div>
+
+    <div class="spacer-nav"></div>
+  </section>
+
+  <!-- Navegación principal -->
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <button class="nav-item active" id="nav-home"    onclick="goTo('home')"    aria-label="Inicio">
+      <span class="nav-icon" aria-hidden="true">⌂</span>
+      <span class="nav-label">Inicio</span>
+    </button>
+    <button class="nav-item"        id="nav-scan"    onclick="goTo('scan')"    aria-label="Crear obra">
+      <span class="nav-icon" aria-hidden="true">✦</span>
+      <span class="nav-label">Crear</span>
+    </button>
+    <button class="nav-item"        id="nav-gallery" onclick="goTo('gallery')" aria-label="Galería">
+      <span class="nav-icon" aria-hidden="true">◫</span>
+      <span class="nav-label">Galería</span>
+    </button>
+    <button class="nav-item"        id="nav-about"   onclick="goTo('about')"   aria-label="Sobre el museo">
+      <span class="nav-icon" aria-hidden="true">ℹ</span>
+      <span class="nav-label">Museo</span>
+    </button>
+  </nav>
+
+  <!-- TensorFlow.js + Teachable Machine -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
+  <!-- Lógica principal -->
+  <script src="JS/app.js"></script>
+
+</body>
+</html>
