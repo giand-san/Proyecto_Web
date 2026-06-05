@@ -1,0 +1,26 @@
+{
+  "name": "projectmuseum-v1.2",
+  "version": "1.0.0",
+  "description": "conexion mysql desde nodejs",
+  "homepage": "https://github.com/giand-san/Proyecto_Web#readme",
+  "bugs": {
+    "url": "https://github.com/giand-san/Proyecto_Web/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/giand-san/Proyecto_Web.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "bd.js",
+  "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "start": "nodemon JS/bd.js"
+},
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "mysql": "^2.18.1"
+  }
+}
